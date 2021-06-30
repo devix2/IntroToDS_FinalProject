@@ -7,9 +7,9 @@ LISTA DI APPUNTI DA POTER CONSULTARE RAPIDAMENTE
 
 Problema B -- Social pulse
 Usare i dati geografici, meteo, twitter, ed elettrici.
+1) EDA 			Analisi social pulse: trend geografici, orari, correlazioni con dati meteo (temperatura, precipitazioni, forza del vento).
 
-EDA analisi social pulse: trend geografici, orari, correlazioni con dati meteo (temperatura, precipitazioni, forza del vento).
+
 Usando i dati di cui sopra, limitatamente ai giorni precedenti a quello da prevedere
-
-REGRESSIONE	Prevedere l'attività su twitter a livello provinciale nelle fasce orarie 08:00 - 19:00 e 19:00 - 24:00. Ci sono fasce più "fini" che catturano buona parte dell'attività
-CLASSIFICAZIONE	Prevedere le circoscrizioni di Trento con maggiore attività su twitter nelle fasce orarie precedenti. Di nuovo, se possibile, ottenere fasce orarie più precise.
+2) REGRESSIONE		Prevedere l'attività su twitter a livello provinciale nelle fasce orarie 08:00 - 19:00 e 19:00 - 24:00. Ci sono fasce più "fini" che catturano buona parte dell'attività
+3) CLASSIFICAZIONE	Prevedere le circoscrizioni di Trento con maggiore attività su twitter nelle fasce orarie precedenti. Di nuovo, se possibile, ottenere fasce orarie più precise.
