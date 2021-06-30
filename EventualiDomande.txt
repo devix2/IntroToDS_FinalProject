@@ -1,0 +1,3 @@
+Ho pullato il cookiecutter project da
+	cookiecutter('https://gitlab.physics.unitn.it/luca.tubiana/cookiecutter-data-science.git')
+che posso solo immaginare sia una template pullata da una cartella del prof. Questa template è standardizzata e trovabile in un altro posto?
