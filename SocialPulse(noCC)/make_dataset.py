@@ -17,7 +17,8 @@ files = {'grid':['trentino-grid.geojson',"geojson"],
         'SET-1':['SET-nov-2013.csv',"csv"],
         'SET-2':['SET-dec-2013.csv',"csv"],
         'SET-lines':['line.csv,"csv"'],
-        'twitter':['social-pulse-trentino.geojson',"json"]}
+        'twitter':['social-pulse-trentino.geojson',"json"],
+        'regions':['Com01012013/Com01012013_WGS84.shp',"shape"]}
 
 def safe_import(inp):
     """
@@ -35,7 +36,9 @@ def safe_import(inp):
         ##### DA FIXARE
     if(filetype=="json"):
         out=pd.read_json(fl, orient="values")
-    print(out)
+    if(filetype=="shape"):
+        out=gpd.read_file(fl)
+    print(out.keys())
     
 
     return out
