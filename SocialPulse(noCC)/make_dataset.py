@@ -46,4 +46,47 @@ def safe_import(inp):
 
 
 
+"""
+def extract_temp(df)
+    #Mi serve in primis creare un database delle stazioni della temperatura
+    stazioni = weather['station'].unique()
+    coltmpr=["nstation", "elevation", "temperature", "precipitations", "positio"]
+
+    station_stats=pd.DataFrame(columns=coltmpr)
+
+    colweather=weather.keys()
+
+    for idx,stat in enumerate(stazioni):
+        station_stats.loc[idx]="NaN"
+        temp = weather[weather['station']==stat]
+
+        #Costruiamo una mappa temporale per displayare la temperatura
+        #Il tempo 0 è 1-11-2013 ore 0:00, e poi conto in minuti
+        #L'ultimo elemento sarà un vettore con un integer in input e e una temperatura in output
+        
+        #temp['date'] =pd.to_datetime(temp["date"])
+        #temp.sort('date')    #Sortiamo per sicurezza
+        
+        assert(len(temp["station"])==61), "Warning: length of the dataset does not match expected value"
+        
+            
+        v=-1000*np.ones(1000000)
+        #Chiedo venia per la python-unfriendlyness
+        for j,st in enumerate(temp.Index()):
+            for i,t in enumerate(colweather[7:7+4*24]):
+                print(t)
+                print(temp)
+                v[(j*4*24+i)*15]=temp.loc[st][t]
+        #Questo mappa effettivamente le colonne
+        
+        station_stats[idx]["postion"]=temp.loc[0]["geometry"]
+        station_stats[idx]["station"]=stat
+        station_stats[idx]["elevation"]=temp.loc[0]["elevation"]
+        station_stats[idx]["temperature"]=v
+        #Con temperature che sarà un dizionario che offre le temperature
+
+station_stats
+"""
+
+
 
