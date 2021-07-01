@@ -16,7 +16,7 @@ files = {'grid':['trentino-grid.geojson',"geojson"],
         'precip-avail':['precipitation-trentino-data-availability.csv',"csv"],
         'SET-1':['SET-nov-2013.csv',"csv"],
         'SET-2':['SET-dec-2013.csv',"csv"],
-        'SET-lines':['line.csv,"csv"'],
+        'SET-lines':['line.csv',"csv"],
         'twitter':['social-pulse-trentino.geojson',"json"],
         'regions':['Com01012013/Com01012013_WGS84.shp',"shape"]}
 
