@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-
 from pathlib import Path
 
 #data_path = Path('./data/raw')   #Per Cookiecutter
@@ -87,6 +86,4 @@ def extract_temp(df)
 
 station_stats
 """
-
-
 
