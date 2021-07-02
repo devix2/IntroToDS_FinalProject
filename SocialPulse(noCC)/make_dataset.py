@@ -33,7 +33,6 @@ def safe_import(inp):
         out=gpd.read_file(fl)
     if(filetype=="csv"):
         out=pd.read_csv(fl)
-        ##### DA FIXARE
     if(filetype=="json"):
         out=pd.read_json(fl, orient="values")
     if(filetype=="shape"):
