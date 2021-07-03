@@ -191,10 +191,15 @@ def Wday(month, day):
         return out[(6+day)%7]
 
 
-def scale(lst)
+def scale(v):
     """
-    #asdkòashfàoabgaàsgfagd
+    Funzione che scala un vettore, ovver sposta l'i-esimo elemento all'i+1-esimo indice
+    Elimina l'ultimo elemento della sequenza, e mette -1000 nel primo (per i nostri scopi è comodo)
+    Ritorna il vettore scalato
     """
+    v.insert(0, -1000)       #Insert front
+    del v[-1]                #Pop back
+    return v
 
 def df_reg(dfTweets, dfTemp):
     """
@@ -223,24 +228,16 @@ def df_reg(dfTweets, dfTemp):
 
     NtwNight = pd.DataFrame({'Counts': TwNight.groupby(
         ['month', 'day']).size()}).reset_index()
-    out["TargetNight"] = NtwDay["Counts"]
+    out["TargetNight"] = NtwNight["Counts"]
 
     #Per l'input dei twwets dei giorni prima, scorro il vettore inputs
     temp=list(NtwDay["Counts"])
-    temp.insert(0, -1000)       #Insert front
-    del temp[-1]                #Pop back
-    out["Tweet1m"] = temp
-    temp.insert(0, -1000)
-    del temp[-1]
-    out["Tweet2m"] = temp
+    out["Tweet1m"]=scale(temp)
+    out["Tweet2m"]=scale(temp)
 
     temp = list(NtwNight["Counts"])
-    temp.insert(0, -1000)  # Insert front
-    del temp[-1]  # Pop back
-    out["Tweet1n"] = temp
-    temp.insert(0, -1000)
-    del temp[-1]
-    out["Tweet2n"] = temp
+    out["Tweet1n"]=scale(temp)
+    out["Tweet2n"]=scale(temp)
 
     #Weekday
     temp=[]
@@ -249,56 +246,52 @@ def df_reg(dfTweets, dfTemp):
             temp.append(Wday(i,j))
     out["Weekday"]=temp
 
-    #Average temperature
+    #Average temperature #All my homies hate weather database
     #The average is computer over all the stations
 
-    #All my homies hate weather database
+    #DAY
     colTempDay=["date", "temperatures.0900", "temperatures.0915", "temperatures.0930", "temperatures.0945"]+\
                ["temperatures."+str(int(1000+100*np.floor(i/4)+(i%4)*15)) for i in range(0,36)]
     Tavg = pd.DataFrame(data=dfTemp, columns=colTempDay).groupby("date").mean()
     Tavg=list(Tavg.swapaxes(0,1).mean())
 
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg1m"] = Tavg
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg2m"]=Tavg
+    out["Tavg1m"]=scale(Tavg)
+    out["Tavg2m"]=scale(Tavg)
 
-    colTempNight = ["temperatures." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
+    #NIGHT
+    colTempNight = ["date"] + ["temperatures." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
     Tavg = pd.DataFrame(data=dfTemp, columns=colTempNight).groupby("date").mean()
     Tavg = list(Tavg.swapaxes(0, 1).mean())
 
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg1m"] = Tavg
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg2m"] = Tavg
+    out["Tavg1n"]=scale(Tavg)
+    out["Tavg2n"]=scale(Tavg)
 
-    #Similarly, precipitation
+    #Similarly, precipitation, let's also fetch the maximum  #NIGHT
     colPrecDay = ["date", "precipitations.0900", "precipitations.0915", "precipitations.0930", "precipitations.0945"] + \
                  ["precipitations." + str(int(1000 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 36)]
-    Tavg = pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").mean()
-    Tavg = list(Tavg.swapaxes(0, 1).mean())
+    Pavg=pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").mean()
+    TopP=pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").max()
+    Pavg = list(Pavg.swapaxes(0, 1).mean())
+    TopP = list(TopP.swapaxes(0, 1).mean())
 
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg1m"] = Tavg
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg2m"] = Tavg
+    out["Rainavg1m"]=scale(Pavg)
+    out["Rainavg2m"]=scale(Pavg)
+    out["Rainmax1m"]=scale(TopP)
+    out["Rainmax2m"]=scale(TopP)
 
-    colPrecNight = ["precipitations." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
-    Tavg = pd.DataFrame(data=dfTemp, columns=colPrecNight).groupby("date").mean()
-    Tavg = list(Tavg.swapaxes(0, 1).mean())
+    #DAY
+    colPrecNight = ["date"] + ["precipitations." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
+    Pavg = pd.DataFrame(data=dfTemp, columns=colPrecNight).groupby("date").mean()
+    TopP=pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").max()
+    Pavg = list(Pavg.swapaxes(0, 1).mean())
+    TopP = list(TopP.swapaxes(0, 1).mean())
 
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg1m"] = Tavg
-    del Tavg[-1]  # Pop back
-    Tavg.insert(0, -1000)  # Insert front
-    out["Tavg2m"] = Tavg
+    out["Rainavg1n"]=scale(Pavg)
+    out["Rainavg2n"]=scale(Pavg)
+    out["Rainmax1n"]=scale(TopP)
+    out["Rainmax2n"]=scale(TopP)
+   
+    
 
 
     out.drop(index=[0, 1], inplace=True)
