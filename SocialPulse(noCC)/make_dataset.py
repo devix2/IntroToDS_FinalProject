@@ -176,16 +176,136 @@ def find_precipitation(weatherdf, month, day, hour, stationName):
     return float(df[cellname])
 
 
+def Wday(month, day):
+    """
+    Function that yields the weekday given the month and the day for the year 2013,
+        months 11 and 12
+    Note that using this function to create the regression database acts as a
+            substitution to normalizing the number of tweets to the individual weekday
+                (as in: renormalizing a temporal serie)
+    """
+    out=["Mo","Tu","We","Th","Fr","Sa","Su"]
+    if(month==11):
+        return out[(4+day)%7]
+    if(month==12):
+        return out[(6+day)%7]
 
-def mediate_parameters(df)
+
+def scale(lst)
+    """
+    #asdkòashfàoabgaàsgfagd
+    """
+
+def df_reg(dfTweets, dfTemp):
     """
     Funzione che tratta il dataframe weather per produrre un dataframe
     con giorni e parametri utili per il ML
     """
-    columns=["month", "day", "T_avg_mor", "T_avg_aft", "Rain_max", "Rain_avg", "T_avg"]
-    out=pd.DataFrame()
+    columnsDay=["Tweet1m", "Tweet2m", "Tavg1m", "Tavg2m", "Rainmax1m", "Rainmax2m",
+                    "Rainavg1m", "Rainavg2m", "Electro1m", "Electro2m"]
+    columnsNight = ["Tweet1n", "Tweet2n", "Tavg1n", "Tavg2n", "Rainmax1n", "Rainmax2n",
+                  "Rainavg1n", "Rainavg2n", "Electro1n", "Electro2n"]
+    columns=columnsDay+columnsNight+["Weekday","TargetDay", "TargetNight"]
+
+    out=pd.DataFrame(columns=columns)
+
+    ##Tweets:
+    #NOTA: per ora il numero di tweets non sarà normalizzato ai giorni della settimana
+    TwDay=dfTweets[dfTweets["hours"]>7.9]
+    TwDay=TwDay[TwDay["hours"]<18.9]
+
+    #Questo autosorta e raggruppa per day
+    NtwDay = pd.DataFrame({'Counts': TwDay.groupby(
+        ['month', 'day']).size()}).reset_index()
+    out["TargetDay"]=NtwDay["Counts"]
+
+    TwNight = dfTweets[dfTweets["hours"] > 18.9]
+
+    NtwNight = pd.DataFrame({'Counts': TwNight.groupby(
+        ['month', 'day']).size()}).reset_index()
+    out["TargetNight"] = NtwDay["Counts"]
+
+    #Per l'input dei twwets dei giorni prima, scorro il vettore inputs
+    temp=list(NtwDay["Counts"])
+    temp.insert(0, -1000)       #Insert front
+    del temp[-1]                #Pop back
+    out["Tweet1m"] = temp
+    temp.insert(0, -1000)
+    del temp[-1]
+    out["Tweet2m"] = temp
+
+    temp = list(NtwNight["Counts"])
+    temp.insert(0, -1000)  # Insert front
+    del temp[-1]  # Pop back
+    out["Tweet1n"] = temp
+    temp.insert(0, -1000)
+    del temp[-1]
+    out["Tweet2n"] = temp
+
+    #Weekday
+    temp=[]
+    for i in [11, 12]:
+        for j in range(0,19+i):
+            temp.append(Wday(i,j))
+    out["Weekday"]=temp
+
+    #Average temperature
+    #The average is computer over all the stations
+
+    #All my homies hate weather database
+    colTempDay=["date", "temperatures.0900", "temperatures.0915", "temperatures.0930", "temperatures.0945"]+\
+               ["temperatures."+str(int(1000+100*np.floor(i/4)+(i%4)*15)) for i in range(0,36)]
+    Tavg = pd.DataFrame(data=dfTemp, columns=colTempDay).groupby("date").mean()
+    Tavg=list(Tavg.swapaxes(0,1).mean())
+
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg1m"] = Tavg
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg2m"]=Tavg
+
+    colTempNight = ["temperatures." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
+    Tavg = pd.DataFrame(data=dfTemp, columns=colTempNight).groupby("date").mean()
+    Tavg = list(Tavg.swapaxes(0, 1).mean())
+
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg1m"] = Tavg
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg2m"] = Tavg
+
+    #Similarly, precipitation
+    colPrecDay = ["date", "precipitations.0900", "precipitations.0915", "precipitations.0930", "precipitations.0945"] + \
+                 ["precipitations." + str(int(1000 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 36)]
+    Tavg = pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").mean()
+    Tavg = list(Tavg.swapaxes(0, 1).mean())
+
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg1m"] = Tavg
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg2m"] = Tavg
+
+    colPrecNight = ["precipitations." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
+    Tavg = pd.DataFrame(data=dfTemp, columns=colPrecNight).groupby("date").mean()
+    Tavg = list(Tavg.swapaxes(0, 1).mean())
+
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg1m"] = Tavg
+    del Tavg[-1]  # Pop back
+    Tavg.insert(0, -1000)  # Insert front
+    out["Tavg2m"] = Tavg
 
 
-    for i in df.groupby(columns="date")
+    out.drop(index=[0, 1], inplace=True)
+    out.reset_index(inplace=True)
+    out.drop(columns="index", inplace=True)
+    print(out)
+    return
+
 
 
