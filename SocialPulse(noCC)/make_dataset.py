@@ -18,7 +18,8 @@ files = {'grid':['trentino-grid.geojson',"geojson"],
         'SET-2':['SET-dec-2013.csv',"csv"],
         'SET-lines':['line.csv',"csv"],
         'twitter':['social-pulse-trentino.geojson',"json"],
-        'regions':['Com01012013/Com01012013_WGS84.shp',"shape"]}
+        'regions':['Com01012013/Com01012013_WGS84.shp',"shape"],
+        'circoscrizioni':['CircoscrizioniTN/circoscrizioni.shp',"shape"]}
 
 def safe_import(inp):
     """
@@ -175,4 +176,16 @@ def find_precipitation(weatherdf, month, day, hour, stationName):
     return float(df[cellname])
 
 
-3
+
+def mediate_parameters(df)
+    """
+    Funzione che tratta il dataframe weather per produrre un dataframe
+    con giorni e parametri utili per il ML
+    """
+    columns=["month", "day", "T_avg_mor", "T_avg_aft", "Rain_max", "Rain_avg", "T_avg"]
+    out=pd.DataFrame()
+
+
+    for i in df.groupby(columns="date")
+
+

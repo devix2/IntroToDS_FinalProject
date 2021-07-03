@@ -1,5 +1,10 @@
 LISTA DI APPUNTI DA POTER CONSULTARE RAPIDAMENTE
 
+ROBA DA FARE:
+1) Finire i punti 2 e 3
+2) Convertire il progetto a cookiecutter, bisogna riaggiustare le paths
+3) Rimuovere cosa non serve da import dati
+4) Salvare il piechart come immagine anzichè grafico (E' pericoloso tenerlo così)
 
 
 
