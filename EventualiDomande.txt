@@ -4,3 +4,6 @@ che posso solo immaginare sia una template pullata da una cartella del prof. Que
 
 
 Cosa cazzo è il database delle precipitazioni perchè non ha senso
+
+
+Per la serie temporale dei tweets, ha senso rinormalizzare
