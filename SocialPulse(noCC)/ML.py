@@ -53,6 +53,18 @@ weather.head(5)
 
 ############### Parte di ML ###############
 ############### Random Forest Regressor ###############
+pipe_logistic = Pipeline([
+        ('encoder', OneHotEncoder(sparse = False, handle_unknown = 'ignore' )),
+        ('scaler', StandardScaler()),
+        ('regressor', LogisticRegression())
+        ])
+
+pipe_logistic = pipe_logistic.fit(X_train, y_train)
+y_logistic_pred = pipe_logistic.predict(X_test)
+print(\"Lo score del nostro modello risulta essere:", accuracy_score(y_test, y_pred_test))
+
+
+############### Random Forest Regressor ###############
 # Sono dubbioso sull'effettiva efficacio di questa pipeline però un tentativo và sicuramente fatto!
 """
 Task 1: voglio cercare di predire il numero di tweets del giorno i-esimo a partire da alcuni parametri dei giorni i-1 e i-2.
