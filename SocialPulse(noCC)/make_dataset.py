@@ -111,23 +111,21 @@ def orderstation(weatherdf):
     return station_stats
 
 
-def find_temperature(weatherdf, month, day, hour, stationName):
+varconv={0 : "temperatures.", 1 : "precipitations."}
+def find_Weather(weatherdf, month, day, hour, stationName, varType=0):
     """
-    Funzione che trova il valore di temperatura dentro weatherdf corretto per una certa data fornita
+    Funzione che cerca il valore dentro al database weather dato, per una certa data+ora fornita
+    Gli input sono autoesplicativi, varType=0 vuol dire temperaura, varType=1 vuol dire precipitation
     """
-    cellname=str(int(np.floor(hour)*100+(hour%1)*60))
-    while(len(cellname)<4):
-        cellname="0"+cellname
-    cellname="temperatures."+cellname
 
+    cellname="%02d%02d" % (int(np.floor(hour)),int((hour%1)*60))
+    cellname=varconv[varType]+cellname
 
     df=weatherdf[weatherdf['station']==stationName]
-    if(day<10):
-        df=df[df['date']=="2013-"+str(month)+"-0"+str(day)]
-    else:
-        df=df[df['date']=="2013-"+str(month)+"-"+str(day)]
+    df=df[ df['date']==("2013-%02d-%02d"%(month,day)) ]
 
     #Se manca il dato lo prendo mezz'ora prima o dopo che non varia troppo
+    #Operazione non così banale
     """
     try:
         return float(str(df[cellname]))
@@ -143,36 +141,17 @@ def find_temperature(weatherdf, month, day, hour, stationName):
     elif(len(str(df[cellname]))<1):
         return find_temperature(weatherdf, month, day, hour+0.5, stationName)
     """
+    """ Questo funziona abbastanza bene ma still inconsistente e non so perchè
     if(df[cellname].isnull().all()):
         if(hour>=0.5):
             return find_temperature(weatherdf, month, day, hour-0.5, stationName)
         else:
             return find_temperature(weatherdf, month, day-1, 23.5, stationName)
-    return float(df[cellname])
-    
-
-def find_precipitation(weatherdf, month, day, hour, stationName):
     """
-    Funzione che trova il valore di precipitazione dentro weatherdf corretto per una certa data fornita
-    A far bene la mergio alla funzione sopra che sono identiche
-    """
-    cellname=str(int(np.floor(hour)*100+(hour%1)*60))
-    while(len(cellname)<4):
-        cellname="0"+cellname
-    cellname="precipitations."+cellname
-
-
-    df=weatherdf[weatherdf['station']==stationName]
-    if(day<10):
-        df=df[df['date']=="2013-"+str(month)+"-0"+str(day)]
-    else:
-        df=df[df['date']=="2013-"+str(month)+"-"+str(day)]
-    
+    #Facciam la cosa safe: ritorna NaN, avrò meno statistica nell'EDA ma non importa
+        #i NaN sono relativamente pochi, e comunque usare altri metodi sporca i valori
     if(df[cellname].isnull().all()):
-        if(hour>=0.5):
-            return find_precipitation(weatherdf, month, day, hour-0.5, stationName)
-        else:
-            return find_precipitation(weatherdf, month, day-1, 23.5, stationName)
+        return np.NAN
     return float(df[cellname])
 
 
@@ -201,11 +180,16 @@ def scale(v):
     del v[-1]                #Pop back
     return v
 
-def df_reg(dfTweets, dfTemp):
+def df_reg():
     """
-    Funzione che tratta il dataframe weather per produrre un dataframe
-    con giorni e parametri utili per il ML
+    Funzione che tratta i dataframe raffinati per produrre un nuovo dataframe per atto a fare il machine learning
+    Ritorna il dataframe stesso
+    Si basa sull'avere i databases nella cartella processed quindi make sure
     """
+    dfTweets=pd.read_csv("data/processed/twitter_final.csv")
+    dfTemp=pd.read_csv("data/processed/weather_final.csv")
+    dfElectric=pd.read_csv("data/processed/electro_final.csv")
+
     columnsDay=["Tweet1m", "Tweet2m", "Tavg1m", "Tavg2m", "Rainmax1m", "Rainmax2m",
                     "Rainavg1m", "Rainavg2m", "Electro1m", "Electro2m"]
     columnsNight = ["Tweet1n", "Tweet2n", "Tavg1n", "Tavg2n", "Rainmax1n", "Rainmax2n",
@@ -239,6 +223,7 @@ def df_reg(dfTweets, dfTemp):
     out["Tweet1n"]=scale(temp)
     out["Tweet2n"]=scale(temp)
 
+    
     #Weekday
     temp=[]
     for i in [11, 12]:
@@ -252,7 +237,9 @@ def df_reg(dfTweets, dfTemp):
     #DAY
     colTempDay=["date", "temperatures.0900", "temperatures.0915", "temperatures.0930", "temperatures.0945"]+\
                ["temperatures."+str(int(1000+100*np.floor(i/4)+(i%4)*15)) for i in range(0,36)]
+    #Medio sulle stazioni
     Tavg = pd.DataFrame(data=dfTemp, columns=colTempDay).groupby("date").mean()
+    #Medio sulla giornata, che qua è rappresentata dalle colonne
     Tavg=list(Tavg.swapaxes(0,1).mean())
 
     out["Tavg1m"]=scale(Tavg)
@@ -266,7 +253,8 @@ def df_reg(dfTweets, dfTemp):
     out["Tavg1n"]=scale(Tavg)
     out["Tavg2n"]=scale(Tavg)
 
-    #Similarly, precipitation, let's also fetch the maximum  #NIGHT
+    #Similarly, precipitation, let's also fetch the maximum 
+    #DAY
     colPrecDay = ["date", "precipitations.0900", "precipitations.0915", "precipitations.0930", "precipitations.0945"] + \
                  ["precipitations." + str(int(1000 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 36)]
     Pavg=pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").mean()
@@ -279,7 +267,7 @@ def df_reg(dfTweets, dfTemp):
     out["Rainmax1m"]=scale(TopP)
     out["Rainmax2m"]=scale(TopP)
 
-    #DAY
+    #NIGHT
     colPrecNight = ["date"] + ["precipitations." + str(int(1900 + 100 * np.floor(i / 4) + (i % 4) * 15)) for i in range(0, 20)]
     Pavg = pd.DataFrame(data=dfTemp, columns=colPrecNight).groupby("date").mean()
     TopP=pd.DataFrame(data=dfTemp, columns=colPrecDay).groupby("date").max()
@@ -290,15 +278,27 @@ def df_reg(dfTweets, dfTemp):
     out["Rainavg2n"]=scale(Pavg)
     out["Rainmax1n"]=scale(TopP)
     out["Rainmax2n"]=scale(TopP)
-   
-    
 
+    #Electricity
+    ElDay=dfElectric[dfElectric["hours"]>7.9]
+    ElDay=ElDay[ElDay["hours"]<18.9]
+
+    ElNight = dfElectric[dfElectric["hours"] > 18.9]
+
+    #Vogliamo consumo (in amp) attraverso tutta la giornata
+    #Dati lasciati a leggera interpretazione, credo che sommare su tutte le lines dia consumo netto territorio
+    ElDayT  =list(  ElDay.groupby(["month", "day"])["Value Amp"].sum())
+    ElNightT=list(ElNight.groupby(["month", "day"])["Value Amp"].sum())
+
+    out["Electro1m"]=scale(ElDayT)
+    out["Electro2m"]=scale(ElDayT)
+    out["Electro1n"]=scale(ElNightT)
+    out["Electro2n"]=scale(ElNightT)
 
     out.drop(index=[0, 1], inplace=True)
     out.reset_index(inplace=True)
     out.drop(columns="index", inplace=True)
-    print(out)
-    return
+    return out
 
 
 
