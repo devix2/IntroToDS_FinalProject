@@ -184,7 +184,7 @@ def df_reg():
     """
     Funzione che tratta i dataframe raffinati per produrre un nuovo dataframe per atto a fare il machine learning
     Ritorna il dataframe stesso
-    Si basa sull'avere i databases nella cartella processed quindi make sure
+    Si basa sull'avere i databases nella cartella processed quindi make sure !!!!!!!!!!!!!
     """
     dfTweets=pd.read_csv("data/processed/twitter_final.csv")
     dfTemp=pd.read_csv("data/processed/weather_final.csv")

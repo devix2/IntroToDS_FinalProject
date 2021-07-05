@@ -1,6 +1,6 @@
 # Libreria per ML
 """
-Iniziamo con la prima task, ovvero prevedere l'attività di twitter a livello provinciale, iniziamo discretizzando
+Prima task: prevedere l'attività di twitter a livello provinciale, iniziamo discretizzando
 il tempo in bins di 30 minuti. Questo è dovuto al fatto che, grazie all'EDA, abbiamo osservato dei picchi di traffico 
 specialmente nelle ore serali (da qui la necessità di avere una risoluzione temporale abbastanza fine) ma allo stesso 
 tempo avendo 27k records in 62 giorni non volevamo avere dei binning con troppa poca popolazione. Da qui la nostra scelta
@@ -8,61 +8,47 @@ tempo avendo 27k records in 62 giorni non volevamo avere dei binning con troppa 
 import pandas as pd
 import numpy as np
 import geopandas as gpd
-from pathlib import Path
-import numpy
-import numpy as np
 import pandas as pd
-import geopandas as gpd
-import matplotlib.pyplot as plt
-from functions import *
-import seaborn as sns
-from numpy import linspace
-import json
-from shapely.geometry import Point
 
 # funzioni di sk-learn
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.linear_model import LogisticRegressionCV
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, cross_validate
-from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, RobustScaler
-from sklearn.metrics import matthews_corrcoef, accuracy_score, confusion_matrix, plot_confusion_matrix
-from pandas_profiling import ProfileReport
+from sklearn.metrics import matthews_corrcoef, r2_score, accuracy_score, confusion_matrix, plot_confusion_matrix
 from sklearn.model_selection import train_test_split
 
-#custom lib
-#import make_dataset as m_d
+# custom lib
+# import make_dataset as m_d
 
-# Importo i dati di Weather, TO BE REMOVED ###############
+# Importo i dati dal database finale che abbiamo fatto queste sono le features di X
+data = pd.read_csv('data/processed/MachineLearningDB.csv')
 
-weather_json = json.load( open(m_d.data_path / m_d.files['weather'][0]) )
-weather = gpd.GeoDataFrame(weather_json['features'])
-#Elimino le colonne del vento (dati molto incompleti)
-weather.drop(weather.columns[list(range(202,298))], axis=1, inplace=True)
-weather.drop(columns=['minWind', \"maxWind\"], inplace=True)
-#Svolgiamo infine i punti geometrici\n
-weather['geometry'] = weather['geomPoint.geom'].apply(lambda x:Point(x['coordinates'][0], x['coordinates'][1]))
-weather.drop(columns=['geomPoint.geom'],inplace=True)
-pd.set_option('display.max_columns', None)
-weather.head(5)
+# Adesso creo il vettore target y
+twitter_data = pd.read_csv('data/processed/twitter_final.csv')
+target = pd.DataFrame({'Counts': twitter_data.groupby(
+        ['month', 'day']).size()}).reset_index()
+target.drop([target.index[0], target.index[1]],inplace = True)
+target = target['Counts'].to_numpy()
 
+#Splitto train e test
+X_train, X_test, y_train, y_test = train_test_split(data,target,test_size=0.4)
 
 ############### Parte di ML ###############
 ############### Random Forest Regressor ###############
 pipe_logistic = Pipeline([
-        ('encoder', OneHotEncoder(sparse = False, handle_unknown = 'ignore' )),
-        ('scaler', StandardScaler()),
-        ('regressor', LogisticRegression())
-        ])
+    ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
+    ('scaler', StandardScaler()),
+    ('regressor', LogisticRegression())
+])
 
 pipe_logistic = pipe_logistic.fit(X_train, y_train)
 y_logistic_pred = pipe_logistic.predict(X_test)
-print(\"Lo score del nostro modello risulta essere:", accuracy_score(y_test, y_pred_test))
-
+print(y_logistic_pred)
+print("Lo score del nostro modello logistico risulta essere:", r2_score(y_test, y_logistic_pred))
 
 ############### Random Forest Regressor ###############
 # Sono dubbioso sull'effettiva efficacio di questa pipeline però un tentativo và sicuramente fatto!
@@ -75,35 +61,31 @@ I dati saranno quindi nella forma
     y = #tweets giorno i"
 """
 pipe_RFR = Pipeline([
-            ('encoder', OneHotEncoder(sparse = False, handle_unknown = 'ignore' )),
-            ('scaler', StandardScaler()),
-            ('Regressor', RandomForestRegressor())
-    ])
-# Vale la pena fare un tentativo prima della CV
-pipeRFR.fit(X_train, y_train)
-
+    ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
+    ('scaler', StandardScaler()),
+    ('Regressor', RandomForestRegressor(bootstrap=False))
+])
+# Vale la pena fare un tentativo prima della CV che da un'accuracy 0
+pipe_RFR.fit(X_train, y_train)
+y_RF_pred = pipe_RFR.predict(X_test)
+for i in range(len(y_RF_pred)):
+    y_RF_pred[i] = int(y_RF_pred[i])
+print(y_RF_pred - y_test)
+print("Lo score della nostra Random Forest risulta essere:", r2_score(y_test, y_RF_pred))
 
 # Provo con una grid search CV
 
-CV_parameters = {'bootstrap': [True, False],
-    'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
-    'max_features': ['auto', 'sqrt'],
-    'min_samples_leaf': [1, 2, 4],
-    'min_samples_split': [2, 5, 10],
-    'n_estimators': [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
-                }
+CV_parameters = {'n_estimators': [5, 10, 25, 50],
+                 'min_samples_leaf': [1, 2, 4],
+                 'min_samples_split': [2, 5, 10],
+                 }
 # Parametri di Tuning del nostro RFR
-RFR_CV = GridSearchCV(estimator = pipe_RFR,
-                      param_grid = CV_parameters,
-                      n_jobs = -1,
-                      cv = 3,
-                      verbose=100
-                      )
-best_RF = RFR_CV.fit(X_train, y_train)
-y_RF_pred = best_RF.predict(X_test)
-print(\"Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RF_pred))
+grid_pipeline = GridSearchCV(estimator=pipe_RFR, param_grid=CV_parameters)
+grid_pipeline.fit(X_train,y_train)
+y_RF_pred = grid_pipeline.predict(X_test)
+print("Lo score della nostra Random Forest con CV risulta essere:", r2_score(y_test, y_RF_pred))
 
-
+exit()
 
 ##################################################################
 # Classificazione delle circoscrizioni di Trento
@@ -122,31 +104,29 @@ Inizialmente provo a lavorare con un Classificatore random forest, dal momento c
 """
 
 pipe_RFC = Pipeline([
-            ('encoder', OneHotEncoder(sparse = False, handle_unknown = 'ignore' )),
-            ('scaler', StandardScaler()),
-            ('Regressor', RandomForestClassifier())
-    ])
+    ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
+    ('scaler', StandardScaler()),
+    ('Regressor', RandomForestClassifier())
+])
 # Vale la pena fare un tentativo prima della CV
-pipeRFC.fit(X_train, y_train)
-
+pipe_RFC.fit(X_train, y_train)
 
 # Provo con una grid search CV
-#Questa griglia va ricontrollata
+# Questa griglia va ricontrollata
 CV_parameters = {'bootstrap': [True, False],
-    'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
-    'max_features': ['auto', 'sqrt'],
-    'min_samples_leaf': [1, 2, 4],
-    'min_samples_split': [2, 5, 10],
-    'n_estimators': [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
-                }
+                 'max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
+                 'max_features': ['auto', 'sqrt'],
+                 'min_samples_leaf': [1, 2, 4],
+                 'min_samples_split': [2, 5, 10],
+                 'n_estimators': [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+                 }
 # Parametri di Tuning del nostro RFR
-RFC_CV = GridSearchCV(estimator = pipe_RFC,
-                      param_grid = CV_parameters,
-                      n_jobs = -1,
-                      cv = 3,
+RFC_CV = GridSearchCV(estimator=pipe_RFC,
+                      param_grid=CV_parameters,
+                      n_jobs=-1,
+                      cv=3,
                       verbose=100
                       )
 best_RFC = RFC_CV.fit(X_train, y_train)
 y_RFC_pred = best_RFC.predict(X_test)
-print(\"Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RFC_pred))
-
+print("Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RFC_pred))
