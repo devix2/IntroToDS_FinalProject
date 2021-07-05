@@ -75,12 +75,18 @@ print("Lo score della nostra Random Forest risulta essere:", r2_score(y_test, y_
 
 # Provo con una grid search CV
 
-CV_parameters = {'n_estimators': [5, 10, 25, 50],
-                 'min_samples_leaf': [1, 2, 4],
-                 'min_samples_split': [2, 5, 10],
+CV_parameters = {'Regressor__n_estimators': [5, 10, 25, 50],
+                 'Regressor__max_depth': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, None],
+                 'Regressor__max_features': ['auto', 'sqrt'],
+                 'Regressor__min_samples_leaf': [1, 2, 4],
+                 'Regressor__min_samples_split': [2, 5, 10],
                  }
+
 # Parametri di Tuning del nostro RFR
-grid_pipeline = GridSearchCV(estimator=pipe_RFR, param_grid=CV_parameters)
+grid_pipeline = GridSearchCV(estimator=pipe_RFR,
+                             param_grid=CV_parameters,
+                             verbose=10,
+                             n_jobs=-1,)
 grid_pipeline.fit(X_train,y_train)
 y_RF_pred = grid_pipeline.predict(X_test)
 print("Lo score della nostra Random Forest con CV risulta essere:", r2_score(y_test, y_RF_pred))
