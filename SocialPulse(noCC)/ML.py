@@ -34,21 +34,22 @@ I dati saranno quindi nella forma
 """
 
 # Importo i dati dal database finale che abbiamo fatto queste sono le features di X
+# tratto i dati forniti come categorici mediante un one hot encoder, non
 data = pd.read_csv('data/processed/MachineLearningDB.csv')
-
+enc = OneHotEncoder(sparse=False, handle_unknown='ignore')
+data['Weekday'] = enc.fit_transform(data['Weekday'].values[:,None])
 # Adesso creo il vettore target y
 target_mattina = data['TargetDay']
 target_sera = data['TargetNight']
 data.drop(columns=['TargetDay', 'TargetNight'], inplace=True)
-
 # Regressione a livello regionale
 # Logistic Regressor
-#supp_ML.logistic_regressor_fittato(data, target_mattina, 'mattina')
-#supp_ML.logistic_regressor_fittato(data, target_sera, 'sera')
+supp_ML.logistic_regressor_fittato(data, target_mattina, 'mattina')
+supp_ML.logistic_regressor_fittato(data, target_sera, 'sera')
 
 # Random Forest Regressor
-#supp_ML.Random_Forest_Regressor_CV(data, target_mattina, 'mattina')
-#supp_ML.Random_Forest_Regressor_CV(data, target_sera, 'sera')
+supp_ML.Random_Forest_Regressor_CV(data, target_mattina, 'mattina')
+supp_ML.Random_Forest_Regressor_CV(data, target_sera, 'sera')
 
 
 """

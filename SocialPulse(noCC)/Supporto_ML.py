@@ -18,11 +18,7 @@ from sklearn.model_selection import train_test_split
 # import make_dataset as m_d
 
 
-
-
-
-
-def logistic_regressor_fittato(X,y):
+def logistic_regressor_fittato(X,y, time):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
     pipe_logistic = Pipeline([
         #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
@@ -32,17 +28,17 @@ def logistic_regressor_fittato(X,y):
 
     pipe_logistic = pipe_logistic.fit(X_train, y_train)
     y_logistic_pred = pipe_logistic.predict(X_test)
-    print("Logistic regression r2_score =", r2_score(y_test, y_logistic_pred))
+    print("Logistic regression r2_score =", r2_score(y_test, y_logistic_pred), 'per la ', time)
     return pipe_logistic
 
 
 
 
 ############### Random Forest Regressor ###############
-def Random_Forest_Regressor_CV(X,y):
+def Random_Forest_Regressor_CV(X,y, time):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
     pipe_RFR = Pipeline([
-        ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
+        #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
         ('scaler', StandardScaler()),
         ('Regressor', RandomForestRegressor(bootstrap=False))
     ])
@@ -51,7 +47,7 @@ def Random_Forest_Regressor_CV(X,y):
     y_RF_pred = pipe_RFR.predict(X_test)
     for i in range(len(y_RF_pred)):
         y_RF_pred[i] = int(y_RF_pred[i])
-    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
+    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred), 'per la ', time)
 
     # Provo con una grid search CV
 
@@ -65,12 +61,11 @@ def Random_Forest_Regressor_CV(X,y):
     # Parametri di Tuning del nostro RFR
     grid_pipeline = GridSearchCV(estimator=pipe_RFR,
                                  param_grid=CV_parameters,
-                                 verbose=1,
                                  cv=3,
                                  n_jobs=-1, )
     grid_pipeline.fit(X_train, y_train)
     y_RF_pred = grid_pipeline.predict(X_test)
-    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
+    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred), 'per la ', time)
     return pipe_RFR
 
 ######## CLASSIFICAZIONE CIRCOSCRIZIONI ##############
@@ -100,7 +95,7 @@ def Random_Forest_Classifier_Circoscrizione(data):
     X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.4)
 
     pipe_RFC = Pipeline([
-        ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
+        #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
         ('scaler', StandardScaler()),
         ('Regressor', RandomForestClassifier(bootstrap=False))
     ])
@@ -117,8 +112,7 @@ def Random_Forest_Classifier_Circoscrizione(data):
     RFC_CV = GridSearchCV(estimator=pipe_RFC,
                           param_grid=CV_parameters,
                           n_jobs=-1,
-                          cv=3,
-                          verbose=1
+                          cv=3
                           )
     RFC_CV.fit(X_train, y_train)
     y_RFC_pred = RFC_CV.predict(X_test)
