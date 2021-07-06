@@ -1,15 +1,18 @@
 import pandas as pd
 import numpy as np
+import make_dataset as m_d
+import json
+
+#Questa la rimuovo in caso serva eseguire lo script senza aver pyecharts
+    #Il grafico lo ho salvato ad immagine
+"""
 from pyecharts.charts import Pie
 from pyecharts import options as opts
-
-
-
-
 def Nightingale_Plot(data):
-    """
+    """"""
     Creates a plot that counts occurences and prints them on a rose plot nightingale style
-    """
+    """"""
+    
     
     #x=data.unique()
     x=list(set(data))  #Estrae elementi unici
@@ -52,3 +55,26 @@ def Nightingale_Plot(data):
                      )
     #pie1.render('Test.html')
     return pie1
+    """
+
+
+def tempDistrib():
+    """
+    Funzione che fetcha la distribuzione della temperatura a partire dal database weather
+    Ovviamente i dati della temperatura non sono propriamente scorrelati da posizione geografica
+    o ora del giorno... Questa è da vedersi come stima, tutti questi dati sono in un certo modo correlati
+    """
+
+    weather_json = json.load( open(m_d.data_path / m_d.files['weather'][0]) )
+    weather = pd.DataFrame(weather_json['features'])
+
+    colnames=["temperatures.%02d%02d"%(int(np.floor(i/4)),(i%4)*15) for i in range(0,96)]
+    
+    temperatures=weather[colnames]
+    out=[]
+    for i in colnames:
+        out.extend(list(temperatures[i]))
+    
+    return out
+
+

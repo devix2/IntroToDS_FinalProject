@@ -22,24 +22,24 @@ from sklearn.model_selection import train_test_split
 
 
 
-############### Random Forest Regressor ###############
-def logistic_regressor_fittato(X,y, time):
+def logistic_regressor_fittato(X,y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
     pipe_logistic = Pipeline([
-        ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
+        #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
         ('scaler', StandardScaler()),
         ('regressor', LogisticRegression())
     ])
 
     pipe_logistic = pipe_logistic.fit(X_train, y_train)
     y_logistic_pred = pipe_logistic.predict(X_test)
-    print("Lo score del nostro modello logistico risulta essere:", r2_score(y_test, y_logistic_pred),'per la ', time)
+    print("Logistic regression r2_score =", r2_score(y_test, y_logistic_pred))
+    return pipe_logistic
 
 
 
 
-
-def Random_Forest_Regressor_CV(X,y, time):
+############### Random Forest Regressor ###############
+def Random_Forest_Regressor_CV(X,y):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
     pipe_RFR = Pipeline([
         ('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
@@ -51,7 +51,7 @@ def Random_Forest_Regressor_CV(X,y, time):
     y_RF_pred = pipe_RFR.predict(X_test)
     for i in range(len(y_RF_pred)):
         y_RF_pred[i] = int(y_RF_pred[i])
-    print("Lo score della nostra Random Forest risulta essere:", r2_score(y_test, y_RF_pred), 'alla ', time)
+    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
 
     # Provo con una grid search CV
 
@@ -70,8 +70,8 @@ def Random_Forest_Regressor_CV(X,y, time):
                                  n_jobs=-1, )
     grid_pipeline.fit(X_train, y_train)
     y_RF_pred = grid_pipeline.predict(X_test)
-    print("Lo score della nostra Random Forest con CV risulta essere:", r2_score(y_test, y_RF_pred), 'alla ', time)
-
+    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
+    return pipe_RFR
 
 ######## CLASSIFICAZIONE CIRCOSCRIZIONI ##############
 def circoscrizione_attiva(link):

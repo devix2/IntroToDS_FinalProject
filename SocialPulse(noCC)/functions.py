@@ -1,4 +1,8 @@
+"""
+    Questa doveva essere una libreria di funzioni
+    Alla fine abbiam fatto quasi tutto dentro a make_dataset.py
 
+"""
 
 
 def appforth(df, line):
