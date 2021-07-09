@@ -1,14 +1,10 @@
-# Libreria per ML
-"""
-Prima task: prevedere l'attività di twitter a livello provinciale, iniziamo discretizzando
-il tempo in bins di 30 minuti. Questo è dovuto al fatto che, grazie all'EDA, abbiamo osservato dei picchi di traffico 
-specialmente nelle ore serali (da qui la necessità di avere una risoluzione temporale abbastanza fine) ma allo stesso 
-tempo avendo 27k records in 62 giorni non volevamo avere dei binning con troppa poca popolazione. Da qui la nostra scelta
-"""
+#####
 import numpy as np
 import geopandas as gpd
 import pandas as pd
 
+
+####### VEDERE COSA VA EFFETTIVAMENTE IMPORTATO
 # funzioni di sk-learn
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -21,8 +17,10 @@ from sklearn.metrics import matthews_corrcoef, r2_score, accuracy_score, confusi
 from sklearn.model_selection import train_test_split
 
 # custom lib
-# import make_dataset as m_d
-import Supporto_ML as supp_ML
+import make_dataset as m_d
+import ML_functions as supp_ML
+
+np.random.seed(86122330)
 
 """
 Task 1: voglio cercare di predire il numero di tweets del giorno i-esimo a partire da alcuni parametri dei giorni i-1 e i-2.
@@ -35,25 +33,30 @@ I dati saranno quindi nella forma
 
 # Importo i dati dal database finale che abbiamo fatto queste sono le features di X
 # tratto i dati forniti come categorici mediante un one hot encoder, non
-data = pd.read_csv('data/processed/MachineLearningDB.csv')
+data = pd.read_csv(m_d.data_path_out / 'MachineLearningDB.csv')
 enc = OneHotEncoder(sparse=False, handle_unknown='ignore')
 data['Weekday'] = enc.fit_transform(data['Weekday'].values[:,None])
 # Adesso creo il vettore target y
 target_mattina = data['TargetDay']
 target_sera = data['TargetNight']
 data.drop(columns=['TargetDay', 'TargetNight'], inplace=True)
-# Regressione a livello regionale
-# Logistic Regressor
-supp_ML.logistic_regressor_fittato(data, target_mattina, 'mattina')
-supp_ML.logistic_regressor_fittato(data, target_sera, 'sera')
 
+
+
+print("Regressione a numero di tweets, livello regionale")
+print("MATTINA:")
+supp_ML.logistic_regressor_fittato(data, target_mattina)
+supp_ML.Random_Forest_Regressor_CV(data, target_mattina)
+
+print("\n\nSERA:")
+supp_ML.logistic_regressor_fittato(data, target_sera)
+supp_ML.Random_Forest_Regressor_CV(data, target_sera)
 # Random Forest Regressor
-supp_ML.Random_Forest_Regressor_CV(data, target_mattina, 'mattina')
-supp_ML.Random_Forest_Regressor_CV(data, target_sera, 'sera')
+
 
 
 """
-Adesso mi occupo di fare la parte di classificazione: voglio individuare quali siano le circoscrizioni di Trento che hanno
+Task 2: voglio individuare quali siano le circoscrizioni di Trento che hanno
 il più alto numero di interazioni sociali basandomi sui dati delle giornate precedenti. 
 Il dataset sarà uguale a quello precedente con la differenza che la parte di conteggi delle X sarà divisa per circoscrizione
 Dal momento che ci sono 12 circoscrizioni i parametri di input saranno 
@@ -62,4 +65,10 @@ Per quanto riguarda i target, considereremo la circoscrizione con il maggior num
 Inizialmente provo a lavorare con un Classificatore random forest, dal momento che abbiamo pochi elementi
 """
 # Random Forest Classifier
-supp_ML.Random_Forest_Classifier_Circoscrizione(data)
+##supp_ML.Random_Forest_Classifier_Circoscrizione(data)
+
+#QUESTA SI FIXI PRIMA CHE CI OPERO PER ABBELLIRLA
+
+
+#SERVE INOLTRE AGGIUNGERE LA ML ANALYSIS, DIREI CHE FAI TU
+#A FAR BENE SI SALVANO I MODELLI, VABBè CHE VISTO IL TRAINING DI 1 MINUTI ANCHE CHISSENE

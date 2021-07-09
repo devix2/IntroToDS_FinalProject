@@ -25,6 +25,7 @@ def safe_import(inp):
     """
     Function that imports data from a file, turns it into a pandas dataframe,
     and prints the types of every variable to check for correctness of import
+    To be used appropriately inside a notebook
     """
     filename=files[inp][0]
     filetype=files[inp][1]
@@ -38,7 +39,7 @@ def safe_import(inp):
         out=pd.read_json(fl, orient="values")
     if(filetype=="shape"):
         out=gpd.read_file(fl)
-    print(out.keys())
+    print("SafeImport_Output:  ",out.keys())
     
 
     return out
@@ -46,7 +47,8 @@ def safe_import(inp):
 
 def orderstation(weatherdf):
     """
-    Funzione che ordina il dataframe del weather per estrarre caratteristiche uniche delle stazioni, quali nome, posizione, elevazione
+    Funzione che ordina il dataframe del weather per estrarre 
+    caratteristiche uniche delle stazioni, quali nome, posizione, elevazione
     Comodo quando devo trovare la stazione più vicina ad un punto
     """
 
@@ -78,32 +80,10 @@ def find_Weather(weatherdf, month, day, hour, stationName, varType=0):
     df=weatherdf[weatherdf['station']==stationName]
     df=df[ df['date']==("2013-%02d-%02d"%(month,day)) ]
 
-    #Se manca il dato lo prendo mezz'ora prima o dopo che non varia troppo
-    #Operazione non così banale
-    """
-    try:
-        return float(str(df[cellname]))
-    except ValueError:
-        if(hour>=0.5):
-            return find_temperature(weatherdf, month, day, hour-0.5, stationName)
-        else:
-            return find_temperature(weatherdf, month, day, hour+0.5, stationName)
-    """
-    """
-    if(len(str(df[cellname]))<1 and hour>=0.5):
-        return find_temperature(weatherdf, month, day, hour-0.5, stationName)
-    elif(len(str(df[cellname]))<1):
-        return find_temperature(weatherdf, month, day, hour+0.5, stationName)
-    """
-    """ Questo funziona abbastanza bene ma still inconsistente e non so perchè
-    if(df[cellname].isnull().all()):
-        if(hour>=0.5):
-            return find_temperature(weatherdf, month, day, hour-0.5, stationName)
-        else:
-            return find_temperature(weatherdf, month, day-1, 23.5, stationName)
-    """
-    #Facciam la cosa safe: ritorna NaN, avrò meno statistica nell'EDA ma non importa
-        #i NaN sono relativamente pochi, e comunque usare altri metodi sporca i valori
+    #Se manca il dato posso procedere in 2 modi
+        #1) Lo prendo mezz'ora prima o dopo che non varia troppo (Operazione non così banale e unsafe)
+        #2) ritorna NaN, avrò meno statistica nell'EDA ma non importa, i NaN son pochi
+        # In questa versione, uso la 2
     if(df[cellname].isnull().all()):
         return np.NAN
     return float(df[cellname])
@@ -111,11 +91,8 @@ def find_Weather(weatherdf, month, day, hour, stationName, varType=0):
 
 def Wday(month, day):
     """
-    Function that yields the weekday given the month and the day for the year 2013,
-        months 11 and 12
-    Note that using this function to create the regression database acts as a
-            substitution to normalizing the number of tweets to the individual weekday
-                (as in: renormalizing a temporal serie)
+    Function that yields the weekday given the month and the day
+        Works for the year 2013, months 11 and 12
     """
     out=["Mo","Tu","We","Th","Fr","Sa","Su"]
     if(month==11):
@@ -126,8 +103,8 @@ def Wday(month, day):
 
 def scale(v):
     """
-    Funzione che scala un vettore, ovver sposta l'i-esimo elemento all'i+1-esimo indice
-    Elimina l'ultimo elemento della sequenza, e mette -1000 nel primo (per i nostri scopi è comodo)
+    Funzione che scala un vettore, ovvero sposta l'i-esimo elemento all'i+1-esimo indice
+    Elimina l'ultimo elemento della sequenza, e mette -1000 nel primo (per i nostri scopi è comodo così)
     Ritorna il vettore scalato
     """
     v.insert(0, -1000)       #Insert front
@@ -136,9 +113,9 @@ def scale(v):
 
 def df_reg():
     """
-    Funzione che tratta i dataframe raffinati per produrre un nuovo dataframe per atto a fare il machine learning
+    Funzione che tratta i dataframe raffinati per produrre un nuovo dataframe atto a fare il machine learning
     Ritorna il dataframe stesso
-    Si basa sull'avere i databases nella cartella processed quindi make sure !!!!!!!!!!!!!
+    Si basa sull'avere i databases nella cartella processed quindi fare attenzione
     """
     dfTweets=pd.read_csv("data/processed/twitter_final.csv")
     dfTemp=pd.read_csv("data/processed/weather_final.csv")
@@ -179,15 +156,17 @@ def df_reg():
 
     
     #Weekday
+    """Note: it may be best to normalize the number of tweets to the 
+        individual weekday (as in: renormalizing a temporal serie); 
+        we will treat the weekday as a feature which should be roughly equivalent"""
     temp=[]
     for i in [11, 12]:
         for j in range(0,19+i):
             temp.append(Wday(i,j))
     out["Weekday"]=temp
 
-    #Average temperature #All my homies hate weather database
+    #Average temperature
     #The average is computer over all the stations
-
     #DAY
     colTempDay=["date", "temperatures.0900", "temperatures.0915", "temperatures.0930", "temperatures.0945"]+\
                ["temperatures."+str(int(1000+100*np.floor(i/4)+(i%4)*15)) for i in range(0,36)]
@@ -241,6 +220,7 @@ def df_reg():
 
     #Vogliamo consumo (in amp) attraverso tutta la giornata
     #Dati lasciati a leggera interpretazione, credo che sommare su tutte le lines dia consumo netto territorio
+        #Qui facciamo quello
     ElDayT  =list(  ElDay.groupby(["month", "day"])["Value Amp"].sum())
     ElNightT=list(ElNight.groupby(["month", "day"])["Value Amp"].sum())
 

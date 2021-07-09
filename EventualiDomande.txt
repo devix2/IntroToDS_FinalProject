@@ -7,3 +7,7 @@ Cosa cazzo è il database delle precipitazioni perchè non ha senso
 
 
 Per la serie temporale dei tweets, ha senso rinormalizzare
+
+
+
+cONSIGLIO: PER DIMINinuire varianza può essere utile: ridurre insieme test, aumentare numero in validation per evitare iperparametri scelti maleh

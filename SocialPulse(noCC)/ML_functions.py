@@ -15,10 +15,16 @@ from sklearn.metrics import matthews_corrcoef, r2_score, accuracy_score, confusi
 from sklearn.model_selection import train_test_split
 
 # custom lib
-# import make_dataset as m_d
+import make_dataset as m_d
 
-
-def logistic_regressor_fittato(X,y, time):
+################# REGRESSIONE A NUMERO DI TWEETS
+#Logistic
+def logistic_regressor_fittato(X,y):
+    """
+    Funzione che crea, fitta, testa e ritorna una pipeline con il logistic regressor,
+    con alcune caratterstiche autoevidenti da codice
+    Printa il risultato dell'r2 score
+    """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
     pipe_logistic = Pipeline([
         #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
@@ -28,14 +34,19 @@ def logistic_regressor_fittato(X,y, time):
 
     pipe_logistic = pipe_logistic.fit(X_train, y_train)
     y_logistic_pred = pipe_logistic.predict(X_test)
-    print("Logistic regression r2_score =", r2_score(y_test, y_logistic_pred), 'per la ', time)
+    print("Logistic regression r2_score =", r2_score(y_test, y_logistic_pred))
     return pipe_logistic
 
 
 
 
-############### Random Forest Regressor ###############
-def Random_Forest_Regressor_CV(X,y, time):
+#Random forest
+def Random_Forest_Regressor_CV(X,y):
+    """
+    Funzione che crea, fitta, testa e ritorna una pipeline con il RF regressor,
+    con alcune caratterstiche autoevidenti da codice
+    Printa il risultato dell'r2 score
+    """
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
     pipe_RFR = Pipeline([
         #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
@@ -47,10 +58,9 @@ def Random_Forest_Regressor_CV(X,y, time):
     y_RF_pred = pipe_RFR.predict(X_test)
     for i in range(len(y_RF_pred)):
         y_RF_pred[i] = int(y_RF_pred[i])
-    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred), 'per la ', time)
+    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
 
     # Provo con una grid search CV
-
     CV_parameters = {'Regressor__n_estimators': [5, 10, 25, 50],
                      'Regressor__max_depth': [10, 20, 50, 70, 100, None],
                      'Regressor__max_features': ['auto', 'sqrt'],
@@ -65,11 +75,16 @@ def Random_Forest_Regressor_CV(X,y, time):
                                  n_jobs=-1, )
     grid_pipeline.fit(X_train, y_train)
     y_RF_pred = grid_pipeline.predict(X_test)
-    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred), 'per la ', time)
+    print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
     return pipe_RFR
 
-######## CLASSIFICAZIONE CIRCOSCRIZIONI ##############
+########### CLASSIFICAZIONE CIRCOSCRIZIONI ##############
 def circoscrizione_attiva(link):
+    """
+    Funzione che prende il dataframe raffinato dei tweets e determina per ogni giornata
+    la circoscrizione con più tweets
+    Ritorna una lista lunga 61 con i nomi delle circoscrizioni con più tweets per quel giorno
+    """
     tw=pd.read_csv(link)
 
     tw.dropna(subset=["circoscrizione"], inplace=True)
@@ -85,8 +100,11 @@ def circoscrizione_attiva(link):
 
 
 def Random_Forest_Classifier_Circoscrizione(data):
+    """
+    WHAT A MESS OF A FUCKING FUNCTION, FIX THIS
+    """
     # creo il vettore delle y trovando qual è la circoscrizione più attiva
-    target = circoscrizione_attiva("data/processed/twitter_final.csv")
+    target = circoscrizione_attiva(data_path_out / "twitter_final.csv")
     target = pd.Series(target)
     target.drop([target.index[0], target.index[1]], inplace=True)
     enc = OneHotEncoder(sparse=False, handle_unknown='ignore')
