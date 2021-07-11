@@ -34,8 +34,8 @@ def logistic_regressor_fittato(X,y, num_features, cat_features):
 
     transf=make_column_transformer(
             (StandardScaler(), num_features),
-            (OneHotEncoder(), cat_features),
-            remainder='passthrough')
+            (OneHotEncoder(handle_unknown="ignore"), cat_features),
+            remainder='drop')
     pipe_logistic = Pipeline([
         #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
         #('scaler', StandardScaler()),
@@ -58,25 +58,29 @@ def Random_Forest_Regressor_CV(X,y, num_features, cat_features):
     con alcune caratterstiche autoevidenti da codice
     Printa il risultato dell'r2 score
     """
+    X=X[num_features+cat_features]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
 
     transf=make_column_transformer(
             (StandardScaler(), num_features),
-            (OneHotEncoder(), cat_features),
-            remainder='passthrough')
+            (OneHotEncoder(handle_unknown="ignore"), cat_features),
+            remainder='drop')
     pipe_RFR = Pipeline([
         #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
         #('scaler', StandardScaler()),
         ('transformer', transf), 
         ('Regressor', RandomForestRegressor(bootstrap=False))
     ])
+    #print(tranf.onehotencoder.categories_)
+    
     # Vale la pena fare un tentativo prima della CV che da un'accuracy 0
     pipe_RFR.fit(X_train, y_train)
     y_RF_pred = pipe_RFR.predict(X_test)
+    """
     for i in range(len(y_RF_pred)):
-        y_RF_pred[i] = int(y_RF_pred[i])
+        y_RF_pred[i] = int(y_RF_pred[i])"""
     print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
-
+    
     # GRID SEARCH CV
     CV_parameters = {'Regressor__n_estimators': [5, 10, 25, 50],
                      'Regressor__max_depth': [10, 20, 50, 70, 100, None],
@@ -93,7 +97,8 @@ def Random_Forest_Regressor_CV(X,y, num_features, cat_features):
     grid_pipeline.fit(X_train, y_train)
     y_RF_pred = grid_pipeline.predict(X_test)
     print("Random forest (gridSearchCV) r2_score = ", r2_score(y_test, y_RF_pred))
-    return pipe_RFR
+    
+    return grid_pipeline
 
 
 ########### CLASSIFICAZIONE CIRCOSCRIZIONI ##############
@@ -112,31 +117,27 @@ def circoscrizione_attiva(link):
     maxi=temp.groupby(["month", "day"]).idxmax()
 
     output=[i[2] for i in maxi]
-    print(output)
     return output
 
 
 
-def Random_Forest_Classifier_Circoscrizione(data, num_features, cat_features):
+def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     """
     WHAT A MESS OF A FUCKING FUNCTION, FIX THIS
     """
-    # creo il vettore delle y trovando qual è la circoscrizione più attiva
-    target = circoscrizione_attiva(m_d.data_path_out / "twitter_final.csv")
-    target = pd.Series(target)
-    target.drop([target.index[0], target.index[1]], inplace=True)
+  
 
-    #DA FIXARE
-    enc = OneHotEncoder(sparse=False, handle_unknown='ignore')
-    target = enc.fit_transform(target.values[:,None])
+    X=X[num_features+cat_features]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
 
-    X_train, X_test, y_train, y_test = train_test_split(data, target, test_size=0.4)
-    #NON TOGLI NUMERO TWEETS
+    transf=make_column_transformer(
+            (StandardScaler(), num_features),
+            (OneHotEncoder(handle_unknown="ignore"), cat_features),
+            remainder='drop')
 
-    #Da riadattare
     pipe_RFC = Pipeline([
         #('encoder', OneHotEncoder(sparse=False, handle_unknown='ignore')),
-        ('scaler', StandardScaler()),
+        ('transformer', transf),
         ('Regressor', RandomForestClassifier(bootstrap=False))
     ])
 
@@ -158,3 +159,4 @@ def Random_Forest_Classifier_Circoscrizione(data, num_features, cat_features):
     y_RFC_pred = RFC_CV.predict(X_test)
     #Di questo sicuro fare ROC + precision-recall
     print("Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RFC_pred), 'per il riconoscimento delle circoscrizioni più attive')
+    return RFC_CV
