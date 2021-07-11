@@ -11,7 +11,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.linear_model import Ridge
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, RobustScaler
-from sklearn.metrics import matthews_corrcoef, r2_score, accuracy_score, confusion_matrix, plot_confusion_matrix
+from sklearn.metrics import matthews_corrcoef, r2_score, accuracy_score, confusion_matrix
+from sklearn.metrics import plot_roc_curve, plot_precision_recall_curve, plot_confusion_matrix
+
 from sklearn.model_selection import train_test_split
 from sklearn.compose import make_column_transformer
 
@@ -123,10 +125,11 @@ def circoscrizione_attiva(link):
 
 def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     """
-    WHAT A MESS OF A FUCKING FUNCTION, FIX THIS
+    La funzione inizialmente inizia importando i dati ed eliminando le prime due giornate, poichè mancano i dati storici
+    per effettuare una predizione di qualsiasi tipo.
+    In seguito i dati vengono Encodati dentro alla pipeline di apprendimento su cui viene fatta una cross validation.
+    La funzione printa il risultato di un'accuracy score e restituisce il modello migliore già fittato per ulteriori usi.
     """
-  
-
     X=X[num_features+cat_features]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
 
@@ -143,20 +146,33 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
 
     # Provo con una grid search CV
     # Questa griglia va ricontrollata
-    CV_parameters = {'Regressor__n_estimators': [5, 10, 25, 50],
-                     'Regressor__max_depth': [10, 20, 50, 70, 100, None],
-                     'Regressor__max_features': ['auto', 'sqrt'],
-                     'Regressor__min_samples_leaf': [1, 2, 4],
-                     'Regressor__min_samples_split': [2, 5, 10],
+    CV_parameters = {'Regressor__n_estimators': [50, 100, 200, 500],  # Valori superiori rallentano l'algoritmo
+                     'Regressor__max_depth': [5, 10, 20, 50, 70, 100],  # Rasoio di Occam per evitare overfitting
+                     'Regressor__min_samples_leaf': [1, 2, 4],  # Sempre rasoio di Occam
+                     'Regressor__min_samples_split': [2, 5, 10, 15, 20],
                      }
     # Parametri di Tuning del nostro RFR
     RFC_CV = GridSearchCV(estimator=pipe_RFC,
                           param_grid=CV_parameters,
                           n_jobs=-1,
-                          cv=3
+                          cv=2
                           )
     RFC_CV.fit(X_train, y_train)
     y_RFC_pred = RFC_CV.predict(X_test)
     #Di questo sicuro fare ROC + precision-recall
     print("Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RFC_pred), 'per il riconoscimento delle circoscrizioni più attive')
+    post_analysis_classifier(predictor=RFC_CV, X=X_test, y=y_test)
     return RFC_CV
+
+def post_analysis_classifier(predictor, X, y):
+    """
+    Assumiamo un Ansatz molto forte, ovvero che le circoscrizioni di Piedicastello-Centro e Oltrefersina siano le uniche
+    due che effettivamente ambiscono ad essere quelle dove si twitta di più (ciò è ovviamente legato al numero di
+    residenti). Possiamo quindi tracciare la ROC curve e la precision-recall curve, plottare la confusion matrix.
+    Ciò aiuta effettivamente a contestualizzare lo score decentemente alto che abbiamo avuto.
+    predictor è il miglior predittore trovato (solitamente tramite CV).
+    X e y sono i punti del problema di apprendimento.
+    """
+    plot_precision_recall_curve(estimator=predictor, X=X, y=y)
+    plot_roc_curve(estimator=predictor, X=X, y=y)
+    plot_confusion_matrix(estimator=predictor, X=X, y_true=y)

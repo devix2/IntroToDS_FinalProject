@@ -1,0 +1,5 @@
+Spiegazione dei vari datasets:
+https://www.nature.com/articles/sdata201555
+
+Download dei datasets delle posizioni geografiche delle circoscrizioni di Trento:
+https://www.comune.trento.it/Aree-tematiche/Cartografia/Download/Circoscrizioni
