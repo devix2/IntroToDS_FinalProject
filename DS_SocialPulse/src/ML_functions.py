@@ -2,6 +2,7 @@
 import numpy as np
 import geopandas as gpd
 import pandas as pd
+import random
 
 # funzioni di sk-learn
 from sklearn.pipeline import Pipeline
@@ -95,7 +96,7 @@ def Random_Forest_Regressor_CV(X,y, num_features, cat_features):
     grid_pipeline = GridSearchCV(estimator=pipe_RFR,
                                  param_grid=CV_parameters,
                                  cv=3,
-                                 n_jobs=-1, )
+                                 n_jobs=-1)
     grid_pipeline.fit(X_train, y_train)
     y_RF_pred = grid_pipeline.predict(X_test)
     print("Random forest (gridSearchCV) r2_score = ", r2_score(y_test, y_RF_pred))
@@ -160,7 +161,7 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     RFC_CV.fit(X_train, y_train)
     y_RFC_pred = RFC_CV.predict(X_test)
     #Di questo sicuro fare ROC + precision-recall
-    print("Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RFC_pred), 'per il riconoscimento delle circoscrizioni più attive')
+    print("Random forest classifier accuracy score:", accuracy_score(y_test, y_RFC_pred))
     
     #Gonna leave these here, more convenient than return the test values as in return RFC_CV, (X_test, y_test)
     plot_confusion_matrix(RFC_CV, X_test, y_test)
