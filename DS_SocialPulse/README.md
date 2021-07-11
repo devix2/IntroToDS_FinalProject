@@ -28,6 +28,13 @@ I file sono completamente commentati con i nostri appunti e le nostre osservazio
 
 La roadmap standardizzata fornita dal Prof. Tubiana è stata seguita in maniera sparsa, quindi il resto di questo file è piuttosto misleading
 
+NOTA! Molti dei claims fatti nelle annotazioni (in riferimento al machine learning) si basano su runs multiple, quindi potrebbero
+	non essere apparenti sul singolo risultato (tra l'altro il numpy seed bugga con gridsearchCV quindi noia). Se desiderato,
+	può essere utile runnare con tanti seeds diversi per vedere alcuni degli effetti osservati in fase di development
+
+
+
+
 
 
 
