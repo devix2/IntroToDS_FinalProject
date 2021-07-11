@@ -14,6 +14,7 @@ data_path_in = Path('./../data/raw')  #Dentro Cookiecutter
 #data_path_out = Path('./data/processed')  #Fuori Cookiecutter
 data_path_out = Path('./../data/processed')
 
+models_path = Path('./../models')
 
 files = {'grid':['trentino-grid.geojson',"geojson"],
         'adm_reg':['administrative_regions_Trentino.json',"json"],

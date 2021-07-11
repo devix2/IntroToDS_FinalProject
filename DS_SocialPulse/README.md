@@ -3,6 +3,33 @@ SocialPulse
 
 Repository for the creation of the final project of the Uni-Trento course "Introduction to data science for physicist" (held by Luca Tubiana)
 
+
+DESCRIPTION:
+Consegna finale elaborato "Social Pulse".
+Questo progetto è stato realizzato da Davide Micheli e da Lorenzo Beltrame.
+
+Non abbiamo preparato un make_file perchè farlo su Windows è altamente impratico e fuori lo scopo del corso, speriamo che questo non risulti essere un problema.
+Per ottenere l'env su cui lavorare, si può usare il file della dir ./PythonEnv e usando anaconda.
+Per svolgere questo progetto bisogna aprire la sezione ./src runnare:
+
+python make_dataset_run.py
+python ML_run.py
+
+
+Più realisticamente, ha senso svolgere lo studio attraverso notebooks nella directory ./notebooks, da eseguire nell'ordine:
+
+- import.ipynb
+- EDA.ipynb
+- machine_learning.ipynb
+
+I file sono completamente commentati con i nostri appunti e le nostre osservazioni.
+
+La roadmap standardizzata fornita dal Prof. Tubiana è stata seguita in maniera sparsa, quindi il resto di questo file è piuttosto misleading
+
+
+
+
+
 Project Organization
 ------------
 

@@ -161,18 +161,15 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     y_RFC_pred = RFC_CV.predict(X_test)
     #Di questo sicuro fare ROC + precision-recall
     print("Lo score della nostra Random Forest risulta essere:", accuracy_score(y_test, y_RFC_pred), 'per il riconoscimento delle circoscrizioni più attive')
-    post_analysis_classifier(predictor=RFC_CV, X=X_test, y=y_test)
+    
+    #Gonna leave these here, more convenient than return the test values as in return RFC_CV, (X_test, y_test)
+    plot_confusion_matrix(RFC_CV, X_test, y_test)
+    plot_precision_recall_curve(RFC_CV, X_test, y_test)
+    plot_roc_curve(RFC_CV, X_test, y_test)
+
+
     return RFC_CV
 
-def post_analysis_classifier(predictor, X, y):
-    """
-    Assumiamo un Ansatz molto forte, ovvero che le circoscrizioni di Piedicastello-Centro e Oltrefersina siano le uniche
-    due che effettivamente ambiscono ad essere quelle dove si twitta di più (ciò è ovviamente legato al numero di
-    residenti). Possiamo quindi tracciare la ROC curve e la precision-recall curve, plottare la confusion matrix.
-    Ciò aiuta effettivamente a contestualizzare lo score decentemente alto che abbiamo avuto.
-    predictor è il miglior predittore trovato (solitamente tramite CV).
-    X e y sono i punti del problema di apprendimento.
-    """
-    plot_precision_recall_curve(estimator=predictor, X=X, y=y)
-    plot_roc_curve(estimator=predictor, X=X, y=y)
-    plot_confusion_matrix(estimator=predictor, X=X, y_true=y)
+
+    
+    
