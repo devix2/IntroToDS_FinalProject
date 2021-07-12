@@ -9,9 +9,9 @@ Consegna finale elaborato "Social Pulse".
 Questo progetto è stato realizzato da Davide Micheli e da Lorenzo Beltrame.
 
 Non abbiamo preparato un make_file perchè farlo su Windows è altamente impratico e fuori lo scopo del corso, speriamo che questo non risulti essere un problema.
-Per ottenere l'env su cui lavorare, si può usare il file della dir ./PythonEnv e usando anaconda.
+Per ottenere l'env su cui lavorare, si può usare il file della dir ./PythonEnv aprendolo mediante il prompt di anaconda.
 
-I dati necessari sono parte di quelli forniti nella cartella lezione_24 (tendenzialmente tutti importabili dalla reference del paper, sebbene separatamente) e i dati della mappa della circoscrizione di TN (vedi references). Per sicurezza, includo una copia dei dati della circoscrizione nella cartella raw
+I dati necessari sono parte di quelli forniti nella cartella lezione_24 (tendenzialmente tutti importabili dalla reference del paper linkato in "references", sebbene separatamente) e i dati della mappa della circoscrizione di Trento (vedi references). Per sicurezza, includo una copia dei dati della circoscrizione nella cartella raw.
 Per svolgere questo progetto bisogna aprire la sezione ./src runnare:
 
 python make_dataset_run.py			-> Ci impiega ~5 mins
@@ -29,8 +29,10 @@ I file sono completamente commentati con i nostri appunti e le nostre osservazio
 La roadmap standardizzata fornita dal Prof. Tubiana è stata seguita in maniera sparsa, quindi il resto di questo file è piuttosto misleading
 
 NOTA! Molti dei claims fatti nelle annotazioni (in riferimento al machine learning) si basano su runs multiple, quindi potrebbero
-	non essere apparenti sul singolo risultato (tra l'altro il numpy seed bugga con gridsearchCV quindi noia). Se desiderato,
-	può essere utile runnare con tanti seeds diversi per vedere alcuni degli effetti osservati in fase di development
+	non risultare evidenti nella singola run (tra l'altro il numpy seed bugga con gridsearchCV, poichè la fu). Se desiderato,
+	può essere utile runnare con tanti seeds diversi per vedere alcuni degli effetti osservati in fase di development.
+
+In ogni caso, il problema principale di questo progetto è la scarsità di dati grezzi. Se avessimo avuto a disposizione un maggior numero di dati, magari su una time span di tre anni, avremmo potuto predire in maniera decisamente migliore.
 
 
 
