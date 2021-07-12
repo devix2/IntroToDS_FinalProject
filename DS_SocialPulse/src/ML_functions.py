@@ -153,7 +153,6 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     ])
 
     # Provo con una grid search CV
-    # Questa griglia va ricontrollata
     CV_parameters = {'Regressor__n_estimators': [50, 100, 200, 500],  # Valori superiori rallentano l'algoritmo
                      'Regressor__max_depth': [5, 10, 20, 50, 70, 100],  # Rasoio di Occam per evitare overfitting
                      'Regressor__min_samples_leaf': [1, 2, 4],  # Sempre rasoio di Occam
@@ -166,7 +165,6 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
                           cv=2)
     RFC_CV.fit(X_train, y_train)
     y_RFC_pred = RFC_CV.predict(X_test)
-    #Di questo sicuro fare ROC + precision-recall
     print("Random forest classifier accuracy score:", accuracy_score(y_test, y_RFC_pred))
     
     #Gonna leave these here, more convenient than return the test values as in "return RFC_CV, (X_test, y_test)"
@@ -176,7 +174,3 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
 
 
     return RFC_CV
-
-
-    
-    
