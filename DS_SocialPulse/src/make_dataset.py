@@ -172,11 +172,9 @@ def df_reg():
 
     
     #Weekday
-    """
-    Note: it may be best to normalize the number of tweets to the 
-    individual weekday (as in: renormalizing a temporal serie); 
-    we will treat the weekday as a feature which should be roughly equivalent
-    """
+    """Note: it may be best to normalize the number of tweets to the 
+        individual weekday (as in: renormalizing a temporal serie); 
+        we will treat the weekday as a feature which should be roughly equivalent"""
     temp=[]
     for i in [11, 12]:
         for j in range(0,19+i):

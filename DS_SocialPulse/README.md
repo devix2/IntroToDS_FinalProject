@@ -9,32 +9,32 @@ Consegna finale elaborato "Social Pulse".
 Questo progetto è stato realizzato da Davide Micheli e da Lorenzo Beltrame.
 
 Non abbiamo preparato un make_file perchè farlo su Windows è altamente impratico e fuori lo scopo del corso, speriamo che questo non risulti essere un problema.
-Per ottenere l'env su cui lavorare, si può usare il file della dir ./PythonEnv aprendolo mediante il prompt di anaconda.
+Per ottenere l'env su cui lavorare, si può usare il file della dir ./PythonEnv e usando anaconda (non abbiamo usato nessun pacchetto strano, apparte pyecharts che ho rimosso dal codice).
 
-I dati necessari sono parte di quelli forniti nella cartella lezione_24 (tendenzialmente tutti importabili dalla reference del paper linkato in "references", sebbene separatamente) e i dati della mappa della circoscrizione di Trento (vedi references). Per sicurezza, includo una copia dei dati della circoscrizione nella cartella raw.
-Per svolgere questo progetto bisogna aprire la sezione ./src runnare:
+I dati necessari sono parte di quelli forniti nella cartella lezione_24 (tendenzialmente tutti importabili dalla reference del paper, sebbene separatamente) e i dati della mappa della circoscrizione di TN (vedi references). Per sicurezza, includo una copia dei dati della circoscrizione nella cartella raw
+Per svolgere questo progetto bisogna aprire la dir ./src runnare:
 
 python make_dataset_run.py			-> Ci impiega ~5 mins
 python ML_run.py				-> Ci impiega ~3 mins (C'è dentro un plot nella parte classificazione (che potrebbe buggare), potrebbe essere necessario dare un comando di avanzata)
-
+	(EDA non ha files, son tutti grafici quindi non ha senso non usare un notebook)
 
 Più realisticamente, ha senso svolgere lo studio attraverso notebooks nella directory ./notebooks, da eseguire nell'ordine:
 
-- import.ipynb
+- import.ipynb					-> Lascerò una copia dei dati raffinati per la comodità della correzione
 - EDA.ipynb
 - machine_learning.ipynb
 
 I file sono completamente commentati con i nostri appunti e le nostre osservazioni.
 
-La roadmap standardizzata fornita dal Prof. Tubiana è stata seguita in maniera sparsa, quindi il resto di questo file è piuttosto misleading
-
 NOTA! Molti dei claims fatti nelle annotazioni (in riferimento al machine learning) si basano su runs multiple, quindi potrebbero
-	non risultare evidenti nella singola run (tra l'altro il numpy seed bugga con gridsearchCV, poichè la fu). Se desiderato,
-	può essere utile runnare con tanti seeds diversi per vedere alcuni degli effetti osservati in fase di development.
+	non essere apparenti sul singolo risultato (ci sono pochi dati che causano alta varianza). Se desiderato,
+	può essere utile runnare con tanti seeds diversi per vedere alcuni degli effetti osservati in fase di development
 
-In ogni caso, il problema principale di questo progetto è la scarsità di dati grezzi. Se avessimo avuto a disposizione un maggior numero di dati, magari su una time span di tre anni, avremmo potuto predire in maniera decisamente migliore.
+NOTA2! GridSearchCV nella nostra implementazione runna in multi-threading (n_jobs=-1 -> tutti i thread sono usati) ma questo rompe il random
+	Probabilmente dovuto al fatto che in parallel run i threads generano numeri random dallo stesso seed, quindi in base a quale thread finisce
+		prima potrebbe ottenere un seed diverso, e quale thread finisce prima è difficile da controllare.
 
-
+NOTA3! La roadmap standardizzata fornita dal Prof. Tubiana è stata seguita in maniera sparsa, quindi il resto di questo README è piuttosto misleading
 
 
 

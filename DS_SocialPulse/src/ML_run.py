@@ -11,12 +11,16 @@ sys.path.append('./../src')
 import make_dataset as m_d
 import ML_functions as supp_ML
 
-seed=86122330
+
+np.random.seed(86122330)
 """
 NOTA: non so perchè ma usare GridSearchCV rovina il determinismo indotto dall'uso del seed di numpy
 Cercando online sembra non dovrebbe ma non sono troppo sicuro della questione
-Per ora cerco di aver quello che posso deterministico
 Poco male, considerando che visto il basso numero di dati eseguire multiple runs mostra quanto instabile l'outcome sia
+    Ho provato: RandomState, reinizializzare il seed dentro e fuori il modulo ML_functions.py e niente funziona
+Credo che il problema sia il fatto che gridsearchCV runna in multithread, in base a quale thread runna più velocemente
+    il random viene usato in ordine diverso; alcuni testing usando n_jobs=1 nella gridsearch dimostrano che questo
+    è probabilmente vero
 """
 
 # PRIMA TASK: prevedere l'attività di twitter a livello provinciale
@@ -32,19 +36,17 @@ data.drop(columns=['TargetDay', 'TargetNight'], inplace=True)
 num_feat=["Tweet1m", "Tweet2m", "Tweet1n", "Tweet2n", "Tavg1m", "Tavg2m", "Tavg1n", "Tavg2n"]
 cat_feat=["Weekday"]
 
-np.random.seed(seed)
 
-# MATTINA:
+#MATTINA:
 print("MATTINA:")
 PL_Matt_Logistic=supp_ML.logistic_regressor_fittato(data, target_mattina, num_feat, cat_feat)
 PL_Matt_RF=supp_ML.Random_Forest_Regressor_CV(data, target_mattina, num_feat, cat_feat)
 
-np.random.seed(seed)
+
 print("\n\nSERA:")
 PL_Sera_Logistic=supp_ML.logistic_regressor_fittato(data, target_sera, num_feat, cat_feat)
 PL_Sera_RF=supp_ML.Random_Forest_Regressor_CV(data, target_sera, num_feat, cat_feat)
 
-np.random.seed(seed)
 # SECONDA TASK: identificare la circoscrizione con più tweets associati
 # creo il vettore delle y trovando qual è la circoscrizione più attiva
 targetCirc = supp_ML.circoscrizione_attiva(m_d.data_path_out / "twitter_final.csv")
