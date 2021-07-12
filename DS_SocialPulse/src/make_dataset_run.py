@@ -4,6 +4,8 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import json
 from shapely.geometry import Point, Polygon
+from shapely.ops import nearest_points
+
 
 #Per usare multi cartelle (cookiecutter)
 import sys
@@ -21,8 +23,6 @@ Note: it is probably wiser to use import.ipynb to run the scripts, as it drastic
 ################# IMPORT #####################
 ## Grid
 grid=m_d.safe_import("grid")
-
-
 
 ### Social pulse ###
 #Questo fallisce ad importare, come mostrato a lezione 24
@@ -129,7 +129,6 @@ tweets = gpd.sjoin(tweets, circ, how="left", op='intersects')
     #Questi li attacco anche se potrei usare dirretto la grid, così è più comodo
 tweets.drop(columns="index_right", inplace=True)
 
-from shapely.ops import nearest_points
 
 
 Tw_final=pd.DataFrame()
@@ -174,7 +173,10 @@ Tw_final["circoscrizione"]=tweets["circoscrizione"]
 Tw_final.to_csv(m_d.data_path_out / 'twitter_final.csv', index=False)
 
 
-
+"""
+NOTA: i DF sono stati salvati in data/processed e sono puliti, la funzione custom df_reg() li importa nuovamente,
+Non è una cosa ottimizzata ma è utile per tenere traccia dei vari processi
+"""
 ### Regression Database (days) ###
 regressdB=m_d.df_reg()
 regressdB.to_csv(m_d.data_path_out / 'MachineLearningDB.csv', index=False)

@@ -4,7 +4,7 @@ import make_dataset as m_d
 import json
 
 #Questa la rimuovo in caso serva eseguire lo script senza aver pyecharts
-    #Il grafico lo ho salvato ad immagine
+    #Il grafico lo ho salvato ad immagine (si trova in notebooks e si chiama NightGraph.png)
 """
 from pyecharts.charts import Pie
 from pyecharts import options as opts
