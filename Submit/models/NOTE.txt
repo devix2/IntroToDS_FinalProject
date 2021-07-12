@@ -1,0 +1,3 @@
+I modelli per le regressioni funzionano abbastanza bene, soffrendo della mancanza di dati (59 records in totale).
+
+Il modello di classificazione è decisamente peggiore ed è fortemente influenzato dallo sbilanciamento delle classi, probabilmente con più dati sarebbe molto migliore.
