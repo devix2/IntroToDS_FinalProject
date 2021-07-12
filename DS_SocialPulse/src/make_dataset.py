@@ -8,10 +8,10 @@ from pathlib import Path
 Script filled with functions useful towards the importation and creation of datasets
 """
 
-#data_path_in = Path('./data/raw')  #Fuori Cookiecutter
-data_path_in = Path('./../data/raw')  #Dentro Cookiecutter
+##Paths per muoversi in cookiecutter
 
-#data_path_out = Path('./data/processed')  #Fuori Cookiecutter
+data_path_in = Path('./../data/raw')  
+
 data_path_out = Path('./../data/processed')
 
 models_path = Path('./../models')

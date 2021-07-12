@@ -22,11 +22,16 @@ from sklearn.compose import make_column_transformer
 # custom lib
 import make_dataset as m_d
 
+
+##MAGARI queste funzioni si faceva meglio a farle che ricevono solo l'insieme di test, o magari gli insiemi pre-splittati
+    #Sarebbe stata più coerente la comparazione tra modelli
+
 ################# REGRESSIONE A NUMERO DI TWEETS #########################
 #Logistic
 def logistic_regressor_fittato(X,y, num_features, cat_features):
     """
     Funzione che crea, fitta, testa e ritorna una pipeline con il logistic regressor,
+    (in riferimento al problema della regressione al numero di tweets)
     con alcune caratterstiche autoevidenti da codice
     Input: X sono i dati, y i targets
         num e cat features rappresentano features numeriche e categoriche (come lista di stringhe)
@@ -58,7 +63,10 @@ def logistic_regressor_fittato(X,y, num_features, cat_features):
 def Random_Forest_Regressor_CV(X,y, num_features, cat_features):
     """
     Funzione che crea, fitta, testa e ritorna una pipeline con il RF regressor,
+    (in riferimento al problema della regressione al numero di tweets)
     con alcune caratterstiche autoevidenti da codice
+    Input: X sono i dati, y i targets
+        num e cat features rappresentano features numeriche e categoriche (come lista di stringhe)
     Printa il risultato dell'r2 score
     """
     X=X[num_features+cat_features]
@@ -74,16 +82,13 @@ def Random_Forest_Regressor_CV(X,y, num_features, cat_features):
         ('transformer', transf), 
         ('Regressor', RandomForestRegressor(bootstrap=False))
     ])
-    #print(tranf.onehotencoder.categories_)
     
     # Vale la pena fare un tentativo prima della CV che da un'accuracy 0
     pipe_RFR.fit(X_train, y_train)
     y_RF_pred = pipe_RFR.predict(X_test)
-    """
-    for i in range(len(y_RF_pred)):
-        y_RF_pred[i] = int(y_RF_pred[i])"""
+
     print("Random forest r2_score = ", r2_score(y_test, y_RF_pred))
-    
+
     # GRID SEARCH CV
     CV_parameters = {'Regressor__n_estimators': [5, 10, 25, 50],
                      'Regressor__max_depth': [10, 20, 50, 70, 100, None],
@@ -126,10 +131,12 @@ def circoscrizione_attiva(link):
 
 def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     """
-    La funzione inizialmente inizia importando i dati ed eliminando le prime due giornate, poichè mancano i dati storici
-    per effettuare una predizione di qualsiasi tipo.
-    In seguito i dati vengono Encodati dentro alla pipeline di apprendimento su cui viene fatta una cross validation.
-    La funzione printa il risultato di un'accuracy score e restituisce il modello migliore già fittato per ulteriori usi.
+    Funzione che crea, fitta, testa e ritorna una pipeline con il RFC regressor,
+    (questa volta in riferimento al problema della classificazione di circoscrizioni)
+    con alcune caratterstiche autoevidenti da codice
+    Input: X sono i dati, y i targets
+        num e cat features rappresentano features numeriche e categoriche (come lista di stringhe)
+    Printa l'accuracy del test
     """
     X=X[num_features+cat_features]
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4)
@@ -156,14 +163,13 @@ def Random_Forest_Classifier_Circoscrizione(X, y, num_features, cat_features):
     RFC_CV = GridSearchCV(estimator=pipe_RFC,
                           param_grid=CV_parameters,
                           n_jobs=-1,
-                          cv=2
-                          )
+                          cv=2)
     RFC_CV.fit(X_train, y_train)
     y_RFC_pred = RFC_CV.predict(X_test)
     #Di questo sicuro fare ROC + precision-recall
     print("Random forest classifier accuracy score:", accuracy_score(y_test, y_RFC_pred))
     
-    #Gonna leave these here, more convenient than return the test values as in return RFC_CV, (X_test, y_test)
+    #Gonna leave these here, more convenient than return the test values as in "return RFC_CV, (X_test, y_test)"
     plot_confusion_matrix(RFC_CV, X_test, y_test)
     plot_precision_recall_curve(RFC_CV, X_test, y_test)
     plot_roc_curve(RFC_CV, X_test, y_test)
